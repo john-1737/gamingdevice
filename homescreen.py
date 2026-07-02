@@ -237,6 +237,7 @@ def configure_wallpaper():
 
 cursor = 0
 page = 0
+
 pg.joystick.init()
 joystick = pg.joystick.Joystick(0)
 while True:

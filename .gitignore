@@ -1,12 +1,12 @@
 # Virtual Environment
 gaming_venv/
+requirements.txt
 
 # Joystick module -- different on the pi
 joystick.py
 
 #Start 
 start_gamingdevice.sh
-
 
 
 
