@@ -1,0 +1,9 @@
+# Virtual Environment
+gaming/
+
+# Joystick module -- different on the pi
+joystick.py
+
+
+
+
