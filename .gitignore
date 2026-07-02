@@ -1,8 +1,11 @@
 # Virtual Environment
-gaming/
+gaming_venv/
 
 # Joystick module -- different on the pi
 joystick.py
+
+#Start 
+start_gamingdevice.sh
 
 
 
