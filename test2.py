@@ -1,6 +1,9 @@
 import pygame as pg
 from pygame.locals import *
-from controller_mac import Controller
+try:
+    from controller_mac import Controller
+except ModuleNotFoundError:
+    from controller_pi import Controller
 pg.font.init()
 font = pg.font.SysFont(None, 24)
 render_text = lambda text, pos: screen.blit(font.render(text, True, 'white'), pos)
