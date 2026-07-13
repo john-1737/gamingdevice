@@ -4,6 +4,8 @@ requirements.txt
 
 # Joystick module -- different on the pi
 joystick.py
+controller_mac.py
+controller_pi.py
 
 #Start 
 start_gamingdevice.sh
