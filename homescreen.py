@@ -3,13 +3,15 @@ import pygame as pg
 from pygame.locals import *
 from os import listdir
 from time import sleep
+pg.init()
 try:
     from controller_mac import Controller
+    screen = pg.display.set_mode((300, 300))
 except ModuleNotFoundError:
     from controller_pi import Controller
+    screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 from keyboard import keyboard
 
-pg.init()
 controller = Controller() #Create a Controller object.
 get_joystick_value, button_pressed = controller.get_joystick_value, controller.button_pressed
 
