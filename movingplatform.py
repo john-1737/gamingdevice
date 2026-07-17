@@ -1,6 +1,24 @@
 import pygame as pg
 from pygame.locals import *
 from random import randint, randrange
+try:
+    from controller_mac import Controller
+except ModuleNotFoundError:
+    from controller_pi import Controller
+controller = Controller() #Create a Controller object.
+button_pressed = controller.button_pressed
+from time import sleep
+
+image = 'movingplatform.png'
+name = 'Moving Platform'
+help = '''Welcome to Moving
+Platform!
+This is a platform game
+where the platforms move
+from left to right and you
+jump over them. Press the
+left joystick to jump across
+platforms.'''
 
 def play(s):
     global screen
@@ -30,6 +48,7 @@ def play(s):
     relativec = lambda distance: distance*width/400
 
     runner = pg.transform.scale(pg.image.load('runner.png').convert_alpha(), (width/5, width/5))
+    sleep(0.2)
     while True:
         start = True
         while start:
@@ -37,70 +56,73 @@ def play(s):
                 if event.type == pg.QUIT:
                     pg.quit()
                     exit()
-                elif event.type == KEYDOWN:
-                    if event.key == K_t: #Take the tutorial.
-                        tutorial = True
-                        clock = pg.time.Clock()
-                        while tutorial:
-                            platforms = [[0, width/4*3, width, 'Press the left joystick to jump.', 0],\
-                                         [width+width/4, width/4*3, width, 'Try jumping to a platform above you.', 1],\
-                                         [width*2+width/4+width/6, width/4*3-width/6, width, 'Now try jumping to one below you.', 2],\
-                                         [width*3+width/4+width/3, width/4*3, width*2, 'You\'re ready to play!', 3]]
-                            playing = True
-                            runner_jump = 0
-                            runner_y = width/4*3
-                            text = 'Press the left joystick to jump.'
-                            num = 0
-                            while playing:
-                                for event in pg.event.get():
-                                    if event.type == pg.QUIT:
-                                        pg.quit()
-                                        exit()
-                                    elif event.type == KEYDOWN:
-                                        if event.key == K_SPACE and get_platform_top(runner_y) != None:
-                                            runner_jump = 60
-                                        elif event.key == K_t:
-                                            playing = False
-                                            tutorial = False
-                                screen.fill((0, 255, 255))
-                                for i in platforms[:]:
-                                    i[0] -= relativec(1)
-                                    if i[0] <= -i[2]:
-                                        platforms.remove(i)
-                                    else:
-                                        pg.draw.rect(screen, (255, 0, 255), pg.Rect(i[0], i[1], i[2], width/20))
-                                        pg.draw.rect(screen, (255, 0, 0), pg.Rect(i[0], i[1], i[2], width/20), int(width/100))
-                                if runner_jump:
-                                    runner_y -= relativec(4)
-                                    runner_jump -= 1
-                                elif get_platform_top(runner_y) == None:
-                                    runner_y += relativec(4)
-                                    if runner_y >= width+width/5:
-                                        # platforms = [[0, width/4*3, width, 'Press the left joystick to jump.', 0],\
-                                        #  [width+width/4, width/4*3, width, 'Try jumping to a platform above you.', 1],\
-                                        #  [width*2+width/4+width/6, width/4*3-width/6, width, 'Now try jumping to one below you.', 2],\
-                                        #  [width*3+width/4+width/3, width/4*3, width*2, 'You\'re ready to play!', 3]][num:]
-                                        # for i in platforms:
-                                        #     for j, k in enumerate((0, width+width/4, width*2+width/4+width/6, width*3+width/4+width/3)):
-                                        #         if num == j:
-                                        #             i[0] -= k
-                                        playing = False
-                                else:
-                                    runner_y = get_platform_top(runner_y)
-                                    p = get_platform(runner_y)
-                                    text = p[3]
-                                    num = p[4]
-                                    if int(platforms[-1][0]) <= -width/2:
-                                        playing = False
-                                        tutorial = False
-                                screen.blit(runner, (width/5, runner_y-width/5))
-                                render_text(text, (0, 0))
-                                render_text(f'{num}/3 complete', (0, width/20))
-                                render_text('You\'re in the tutorial. Press the triangle to exit.', (0, width/10))
-                                pg.display.update()
-                                clock.tick(100)
-                    elif event.key == K_SPACE:
-                        start = False
+            if button_pressed(1): return
+            elif button_pressed(0): #Take the tutorial.
+                sleep(0.2)
+                tutorial = True
+                clock = pg.time.Clock()
+                while tutorial:
+                    platforms = [[0, width/4*3, width, 'Press the left joystick to jump.', 0],\
+                                    [width+width/4, width/4*3, width, 'Try jumping to a platform above you.', 1],\
+                                    [width*2+width/4+width/6, width/4*3-width/6, width, 'Now try jumping to one below you.', 2],\
+                                    [width*3+width/4+width/3, width/4*3, width*2, 'You\'re ready to play!', 3]]
+                    playing = True
+                    runner_jump = 0
+                    runner_y = width/4*3
+                    text = 'Press the left joystick to jump.'
+                    num = 0
+                    while playing:
+                        for event in pg.event.get():
+                            if event.type == pg.QUIT:
+                                pg.quit()
+                                exit()
+                        if button_pressed(1): return
+                        elif button_pressed(4) and get_platform_top(runner_y) != None:
+                            runner_jump = 60
+                        elif button_pressed(0):
+                            playing = False
+                            tutorial = False
+                            sleep(0.2)
+                        screen.fill((0, 255, 255))
+                        for i in platforms[:]:
+                            i[0] -= relativec(1)
+                            if i[0] <= -i[2]:
+                                platforms.remove(i)
+                            else:
+                                pg.draw.rect(screen, (255, 0, 255), pg.Rect(i[0], i[1], i[2], width/20))
+                                pg.draw.rect(screen, (255, 0, 0), pg.Rect(i[0], i[1], i[2], width/20), int(width/100))
+                        if runner_jump:
+                            runner_y -= relativec(4)
+                            runner_jump -= 1
+                        elif get_platform_top(runner_y) == None:
+                            runner_y += relativec(4)
+                            if runner_y >= width+width/5:
+                                # platforms = [[0, width/4*3, width, 'Press the left joystick to jump.', 0],\
+                                #  [width+width/4, width/4*3, width, 'Try jumping to a platform above you.', 1],\
+                                #  [width*2+width/4+width/6, width/4*3-width/6, width, 'Now try jumping to one below you.', 2],\
+                                #  [width*3+width/4+width/3, width/4*3, width*2, 'You\'re ready to play!', 3]][num:]
+                                # for i in platforms:
+                                #     for j, k in enumerate((0, width+width/4, width*2+width/4+width/6, width*3+width/4+width/3)):
+                                #         if num == j:
+                                #             i[0] -= k
+                                playing = False
+                        else:
+                            runner_y = get_platform_top(runner_y)
+                            p = get_platform(runner_y)
+                            text = p[3]
+                            num = p[4]
+                            if int(platforms[-1][0]) <= -width/2:
+                                playing = False
+                                tutorial = False
+                        screen.blit(runner, (width/5, runner_y-width/5))
+                        render_text(text, (0, 0))
+                        render_text(f'{num}/3 complete', (0, width/20))
+                        render_text('You\'re in the tutorial. Press the triangle to exit.', (0, width/10))
+                        pg.display.update()
+                        clock.tick(100)
+            elif button_pressed(4):
+                start = False
+                sleep(0.2)
             screen.fill((0, 255, 255))
             pg.draw.rect(screen, (255, 0, 255), pg.Rect(0, width/4*3, width, width/20))
             pg.draw.rect(screen, (255, 0, 0), pg.Rect(-width/100, width/4*3, width+width/50, width/20), int(width/100))
@@ -121,9 +143,9 @@ def play(s):
                 if event.type == pg.QUIT:
                     pg.quit()
                     exit()
-                elif event.type == KEYDOWN:
-                    if event.key == K_SPACE and get_platform_top(runner_y) != None:
-                        runner_jump = 60
+            if button_pressed(1): return
+            elif button_pressed(4) and get_platform_top(runner_y) != None:
+                runner_jump = 60
             screen.fill((0, 255, 255))
             for i in platforms[:]:
                 i[0] -= relativec(1)
@@ -160,9 +182,10 @@ def play(s):
                 if event.type == pg.QUIT:
                     pg.quit()
                     exit()
-                elif event.type == KEYDOWN:
-                    if event.key == K_SPACE:
-                        end = False
+            if button_pressed(1): return
+            elif button_pressed(4):
+                end = False
+                sleep(0.2)
             screen.fill((0, 255, 255))
             for i in platforms[:]:
                 if i[0] <= -i[2]:

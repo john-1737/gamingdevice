@@ -1,5 +1,12 @@
 import pygame as pg
 from pygame.locals import *
+try:
+    from controller_mac import Controller
+except ModuleNotFoundError:
+    from controller_pi import Controller
+controller = Controller() #Create a Controller object.
+get_joystick_value, button_pressed = controller.get_joystick_value, controller.button_pressed
+from time import sleep
 
 keyboards = ('abcdefghijklmnopqrstuvwxyz',
 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 
@@ -9,8 +16,6 @@ keyboards = ('abcdefghijklmnopqrstuvwxyz',
 def keyboard(s, starttext='', inittext=''):
     global screen, font, width, smallfont
     screen = s
-    pg.joystick.init()
-    joystick = pg.joystick.Joystick(0)
     width = screen.get_width()
     help = pg.transform.scale(pg.image.load('help.png').convert_alpha(), (width/6, width/6))
     clear = pg.transform.scale(pg.image.load('clear.png').convert_alpha(), (width/6, width/6))
@@ -24,100 +29,115 @@ def keyboard(s, starttext='', inittext=''):
             if event.type == QUIT:
                 pg.quit()
                 exit()
-            elif event.type == JOYBUTTONDOWN:
-                if event.button == 2:
+        if button_pressed(1):
+            return None
+        elif button_pressed(3) and starttext != '':
+            starttext = list(starttext)
+            del starttext[text_cursor-1]
+            starttext = ''.join(starttext)
+            text_cursor -= 1
+            sleep(0.2)
+        elif button_pressed(4):
+            if cursor in range(1, 27):
+                starttext = list(starttext)
+                starttext.insert(text_cursor, (' '+keyboards[current_kb])[cursor])
+                starttext = ''.join(starttext)
+                text_cursor += 1
+                sleep(0.2)
+            elif cursor == 28:
+                starttext = list(starttext)
+                starttext.insert(text_cursor, ' ')
+                starttext = ''.join(starttext)
+                text_cursor += 1
+                sleep(0.2)
+            elif cursor == 27:
+                if not show_help():
                     return None
-                elif event.button == 0 and starttext != '':
-                        starttext = list(starttext)
-                        del starttext[text_cursor-1]
-                        starttext = ''.join(starttext)
-                        text_cursor -= 1
-                elif event.button == 7:
-                    if cursor in range(1, 27):
-                        starttext = list(starttext)
-                        starttext.insert(text_cursor, (' '+keyboards[current_kb])[cursor])
-                        starttext = ''.join(starttext)
-                        text_cursor += 1
-                    elif cursor == 28:
-                        starttext = list(starttext)
-                        starttext.insert(text_cursor, ' ')
-                        starttext = ''.join(starttext)
-                        text_cursor += 1
-                    elif cursor == 27:
-                        if not show_help():
-                            return None
-                    elif cursor == 0:
-                        clear_cursor = 1
-                        clearing = True
-                        while clearing:
-                            for event in pg.event.get():
-                                if event.type == QUIT:
-                                    pg.quit()
-                                    exit()
-                                elif event.type == JOYBUTTONDOWN:
-                                    if event.button == 2:
-                                        return None
-                                    elif event.button == 7:
-                                        if not clear_cursor:
-                                            starttext = ''
-                                            text_cursor = 0
-                                        clearing = False
-                                elif event.type == JOYAXISMOTION:
-                                    if abs(round(event.value, 2)) == 1:
-                                        if event.axis == 1:
-                                            if event.value >= 0:
-                                                if clear_cursor != 1:
-                                                    clear_cursor += 1
-                                            else:
-                                                if clear_cursor != 0:
-                                                    clear_cursor -= 1
-                            screen.fill((0, 0, 0))
-                            render_text('Clear all?', (0, 0), font=font)
-                            render_text('Yes', (0, width/6), font=font)
-                            render_text('No', (0, width/3), font=font)
-                            pg.draw.rect(screen, (255, 255, 0), pg.Rect(0, width/6*(clear_cursor+1), width, width/6), 2)
-                            pg.display.update()
-                elif event.button == 8:
-                    return starttext
-                elif event.button == 1:
-                    if current_kb in (0, 1):
-                        current_kb = 2
-                    else:
-                        current_kb = 0
-                elif event.button == 3:
-                    if current_kb in (0, 2):
-                        current_kb += 1
-                    else:
-                        current_kb -= 1
-            elif event.type == JOYAXISMOTION:
-                if abs(round(event.value, 2)) == 1:
-                    if event.axis == 0:
-                        if event.value <= 0: 
-                            if cursor != 0:
-                                cursor -= 1
-                        elif cursor != 28:
-                            cursor += 1
-                    elif event.axis == 1:
-                        if event.value <= 0:
-                            if cursor != 0:
-                                cursor -= 6
-                                if cursor < 0:
-                                    cursor = 0
-                        elif cursor < 25:
-                            cursor += 6
-                            if cursor > 28:
-                                cursor = 28
-                    elif event.axis == 2:
-                        if event.value <= 0: 
-                            if text_cursor != 0:
-                                text_cursor -= 1
-                        elif text_cursor != len(starttext):
-                            text_cursor += 1        
-                    elif event.axis == 3:
-                        if event.value <= 0:
+                sleep(0.2)
+            elif cursor == 0:
+                clear_cursor = 1
+                clearing = True
+                sleep(0.2)
+                while clearing:
+                    for event in pg.event.get():
+                        if event.type == QUIT:
+                            pg.quit()
+                            exit()
+                    if button_pressed(1):
+                        return None
+                        sleep(0.2)
+                    elif button_pressed(4):
+                        if not clear_cursor:
+                            starttext = ''
                             text_cursor = 0
+                        clearing = False
+                        sleep(0.2)
+                    val = get_joystick_value(0, 1)
+                    if abs(val) > 75:
+                        if val <= 0:
+                            if clear_cursor != 1:
+                                clear_cursor += 1
+                                sleep(0.2)
                         else:
-                            text_cursor = len(starttext)
+                            if clear_cursor != 0:
+                                clear_cursor -= 1
+                                sleep(0.2)
+                    screen.fill((0, 0, 0))
+                    render_text('Clear all?', (0, 0), font=font)
+                    render_text('Yes', (0, width/6), font=font)
+                    render_text('No', (0, width/3), font=font)
+                    pg.draw.rect(screen, (255, 255, 0), pg.Rect(0, width/6*(clear_cursor+1), width, width/6), 2)
+                    pg.display.update()
+        elif button_pressed(5):
+            return starttext
+            sleep(0.2)
+        elif button_pressed(2):
+            if current_kb in (0, 1):
+                current_kb = 2
+            else:
+                current_kb = 0
+            sleep(0.2)
+        elif button_pressed(0):
+            if current_kb in (0, 2):
+                current_kb += 1
+            else:
+                current_kb -= 1
+            sleep(0.2)
+        val = get_joystick_value(0, 0)
+        if abs(val) > 75:
+            if val <= 0: 
+                if cursor != 0:
+                    cursor -= 1
+            elif cursor != 28:
+                cursor += 1
+            sleep(0.2)
+        val = get_joystick_value(0, 1)
+        if abs(val) > 75:
+            if val >= 0:
+                if cursor != 0:
+                    cursor -= 6
+                    if cursor < 0:
+                        cursor = 0
+            elif cursor < 25:
+                cursor += 6
+                if cursor > 28:
+                    cursor = 28
+            sleep(0.2)
+        val = get_joystick_value(1, 0)
+        if abs(val) > 75:
+            if val <= 0: 
+                if text_cursor != 0:
+                    text_cursor -= 1
+            elif text_cursor != len(starttext):
+                text_cursor += 1
+            sleep(0.2)       
+        val = get_joystick_value(1, 1)
+        if abs(val) > 75:
+            if val <= 0:
+                text_cursor = 0
+            else:
+                text_cursor = len(starttext)
+            sleep(0.2)
         screen.fill((0,0,0))
         if cursor == 28:
             pg.draw.rect(screen, (255, 255, 0), pg.Rect(width/2, width/6*5, width/2, width/6), 2)
@@ -142,7 +162,7 @@ def keyboard(s, starttext='', inittext=''):
         pg.display.update()
 pg.font.init()
 
-def render_text(text, pos, font, center=False, lanchor=False, color=(255, 255, 255)):
+def render_text(text, pos, font, center=False, lanchor=False, color=(255, 255, 255), image=None):
     text_surface = font.render(text, True, color)
     rect = text_surface.get_rect()
     if center:
@@ -153,10 +173,18 @@ def render_text(text, pos, font, center=False, lanchor=False, color=(255, 255, 2
         width = rect.width
         screen.blit(text_surface, (pos[0]-width,  pos[1]))
     else:
-        screen.blit(text_surface, pos)
+        if image == None:
+            screen.blit(text_surface, pos)
+        else:
+            screen.blit(text_surface, (pos[0]+(image.get_rect().width), pos[1]))
+            screen.blit(image, pos)
 
 def show_help():
     page = 0
+    triangle = pg.transform.scale(pg.image.load('triangle.png').convert_alpha(), (width/12, width/12))
+    circle = pg.transform.scale(pg.image.load('circle.png').convert_alpha(), (width/12, width/12))
+    square = pg.transform.scale(pg.image.load('square.png').convert_alpha(), (width/12, width/12))
+    cross = pg.transform.scale(pg.image.load('cross.png').convert_alpha(), (width/12, width/12))
     helptext = ['''Left joystick movement:
 keyboard cursor
 Right joystick movement:
@@ -165,36 +193,38 @@ Left joystick press:
 select key
 Right joystick press:
 close keyboard'''.splitlines(),
-'''Cross button: backspace
-Triangle button: caps lock
-Circle button: number lock
-Square button: exit app
+''' button: backspace
+ button: caps lock
+ button: number lock
+ button: exit app
 
 
 
 '''.splitlines()]
+    images = [[None for i in range(8)], [cross, triangle, circle, square] + [None for i in range(4)]]
+    sleep(0.2)
     while True:
         for event in pg.event.get():
             if event.type == QUIT:
                 pg.quit()
                 exit()
-            elif event.type == JOYBUTTONDOWN:
-                if event.button == 2:
-                    return False
-                elif event.button == 7:
-                    return True
-            elif event.type == JOYAXISMOTION:
-                if abs(round(event.value, 2)) == 1:
-                    if event.axis == 0:
-                        if event.value <= 0: 
-                            page += 1
-                        else:
-                            page -= 1
+        if button_pressed(1):
+            return False
+        elif button_pressed(4):
+            return True
+        val = get_joystick_value(0, 0)
+        if abs(val) > 75:
+            if val <= 0: 
+                page += 1
+                sleep(0.2)
+            else:
+                page -= 1
+                sleep(0.2)
         page %= len(helptext)
         screen.fill((0, 0, 0))
         render_text('Help', (0, 0), font=font)
         for i, j in enumerate(helptext[page], start=2):
-            render_text(j, (0, width/12 * i), font=smallfont)
+            render_text(j, (0, width/12 * i), font=smallfont, image=images[page][i-2])
         render_text('Use left joystick to navigate.', (0, width/12*10), font=smallfont)
         render_text('Press left joystick to exit.', (0, width/12*11), font=smallfont)
         pg.display.update()

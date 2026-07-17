@@ -9,6 +9,13 @@ Tags: large, game, puzzle"""
 import random, sys
 import pygame as pg
 from pygame.locals import *
+try:
+    from controller_mac import Controller
+except ModuleNotFoundError:
+    from controller_pi import Controller
+controller = Controller() #Create a Controller object.
+get_joystick_value, button_pressed = controller.get_joystick_value, controller.button_pressed
+from time import sleep
 
 # Set up the constants:
 BLANK = ''  # A value that represents a blank space on the board.
@@ -31,26 +38,24 @@ def play(s):
     global screen, font, smallfont, width
     screen = s
     width = screen.get_width()
-    pg.display.set_caption('2048')
-    joystick = pg.joystick.Joystick(0)
     pg.font.init()
     font = pg.font.SysFont(None, int(width/9))
     smallfont = pg.font.SysFont(None, int(width/18))
     start_screen = True
+    sleep(0.2)
     while start_screen:
         for event in pg.event.get():
             if event.type == QUIT:
                 pg.quit()
                 sys.exit()
-            elif event.type == pg.JOYBUTTONDOWN:
-                if event.button == 2:
-                    return
-                elif event.button == 7:
-                    start_screen = False
+        if button_pressed(1):
+            return
+        elif button_pressed(4):
+            start_screen = False
         screen.fill((0,0,0))
         render_text('Welcome to 2048 (Joystick Version)!', (0, 0), font=smallfont)
         render_text('Slide all the tiles on the board in one of four', (0, width/16), font=smallfont)
-        render_text('directions with either joystick.', (0, width/8), font=smallfont)
+        render_text('directions with the left joystick.', (0, width/8), font=smallfont)
         render_text('Tiles with like numbers will combine into', (0, width/16*3), font=smallfont)
         render_text('larger-numbered tiles.', (0, width/4), font=smallfont)
         render_text('A new 2 tile is added to the board on each move.', (0, width/16*5), font=smallfont)
@@ -58,7 +63,8 @@ def play(s):
         render_text('You lose if the board fills up the tiles before then.', (0, width/16*7), font=smallfont)
         render_text('Press left joystick to start!', (0, width/2), font=smallfont)
         pg.display.update()
-
+        
+    sleep(0.2)
     while True:
         gameBoard = getNewBoard()
         game = True
@@ -67,27 +73,31 @@ def play(s):
                 if event.type == QUIT:
                     pg.quit()
                     sys.exit()
-                elif event.type == JOYAXISMOTION:
-                    if abs(round(event.value, 2)) == 1:        
-                        if event.axis == 0 or event.axis == 2:
-                            if event.value <= 0:
-                                gameBoard = makeMove(gameBoard, 'A')
-                                addTwoToBoard(gameBoard)
-                            else:
-                                gameBoard = makeMove(gameBoard, 'D')
-                                addTwoToBoard(gameBoard)          
-                        elif event.axis == 1 or event.axis == 3:
-                            if event.value <= 0:
-                                gameBoard = makeMove(gameBoard, 'W')
-                                addTwoToBoard(gameBoard)          
-                            else:
-                                gameBoard = makeMove(gameBoard, 'S')
-                                addTwoToBoard(gameBoard)
-                elif event.type == pg.JOYBUTTONDOWN:
-                    if event.button == 2:
-                        return
-                    elif event.button == 1:
-                        gameBoard = getNewBoard()
+            val = get_joystick_value(0, 0)
+            if abs(val) > 75:
+                if val <= 0:
+                    gameBoard = makeMove(gameBoard, 'A')
+                    addTwoToBoard(gameBoard)
+                    sleep(0.2)
+                else:
+                    gameBoard = makeMove(gameBoard, 'D')
+                    addTwoToBoard(gameBoard)
+                    sleep(0.2)
+            val = get_joystick_value(0, 1)
+            if abs(val) > 75:
+                if val >= 0:
+                    gameBoard = makeMove(gameBoard, 'W')
+                    addTwoToBoard(gameBoard)
+                    sleep(0.2)      
+                else:
+                    gameBoard = makeMove(gameBoard, 'S')
+                    addTwoToBoard(gameBoard)
+                    sleep(0.2)
+            if button_pressed(1):
+                return
+            elif button_pressed(2):
+                gameBoard = getNewBoard()
+                sleep(0.2)
             screen.fill((0,0,0))
             drawBoard(gameBoard)
             if isFull(gameBoard):
@@ -103,11 +113,10 @@ def play(s):
                 if event.type == QUIT:
                     pg.quit()
                     sys.exit()
-                elif event.type == pg.JOYBUTTONDOWN:
-                    if event.button == 2:
-                        return
-                    elif event.button == 7:
-                        endgame = False
+            if button_pressed(1):
+                return
+            elif button_pressed(4):
+                endgame = False
             screen.fill((0, 0, 0))
             drawBoard(gameBoard)
             render_text('Game Over!', (0, width/4*3), font)
