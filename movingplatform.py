@@ -5,8 +5,6 @@ try:
     from controller_mac import Controller
 except ModuleNotFoundError:
     from controller_pi import Controller
-controller = Controller() #Create a Controller object.
-button_pressed = controller.button_pressed
 from time import sleep
 
 image = 'movingplatform.png'
@@ -20,9 +18,10 @@ jump over them. Press the
 left joystick to jump across
 platforms.'''
 
-def play(s):
+def play(s, c):
     global screen
     screen = s
+    get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
     width = screen.get_width()
     pg.init()
     pg.font.init()
@@ -206,4 +205,4 @@ def play(s):
             timer += 1
 
 if __name__ == '__main__':
-    play(pg.display.set_mode((400, 400)))
+    play(pg.display.set_mode((400, 400)), Controller())

@@ -106,10 +106,10 @@ def show_search():
         elif button_pressed(4):
             if selected == 0:
                 sleep(0.2)
-                search_criteria = keyboard(screen, search_criteria, 'Type to search')
+                search_criteria = keyboard(screen, controller, search_criteria, 'Type to search')
                 search_criteria = '' if search_criteria == None else search_criteria
             else:
-                exec(f'{search_apps[selected-1][2]}.play(screen)')
+                exec(f'{search_apps[selected-1][2]}.play(screen, controller)')
                 sleep(0.2)
                 return
         val = get_joystick_value(0, 1)

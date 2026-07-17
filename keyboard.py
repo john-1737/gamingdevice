@@ -1,21 +1,20 @@
 import pygame as pg
 from pygame.locals import *
+from time import sleep
 try:
     from controller_mac import Controller
 except ModuleNotFoundError:
     from controller_pi import Controller
-controller = Controller() #Create a Controller object.
-get_joystick_value, button_pressed = controller.get_joystick_value, controller.button_pressed
-from time import sleep
 
 keyboards = ('abcdefghijklmnopqrstuvwxyz',
 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 
 '1234567890?!.,@#$%^&*()/\'"',
 '1234567890{}[]+-=_|\\:;<>~`')
 
-def keyboard(s, starttext='', inittext=''):
-    global screen, font, width, smallfont
+def keyboard(s, c, starttext='', inittext=''):
+    global screen, get_joystick_value, button_pressed, font, width, smallfont
     screen = s
+    get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
     width = screen.get_width()
     help = pg.transform.scale(pg.image.load('help.png').convert_alpha(), (width/6, width/6))
     clear = pg.transform.scale(pg.image.load('clear.png').convert_alpha(), (width/6, width/6))
@@ -230,4 +229,4 @@ close keyboard'''.splitlines(),
         pg.display.update()
 
 if __name__ == '__main__':
-    keyboard(pg.display.set_mode((300, 300)), inittext='Enter text')
+    keyboard(pg.display.set_mode((300, 300)), Controller(), inittext='Enter text')

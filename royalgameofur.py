@@ -13,8 +13,6 @@ try:
     from controller_mac import Controller
 except ModuleNotFoundError:
     from controller_pi import Controller
-controller = Controller() #Create a Controller object.
-get_joystick_value, button_pressed = controller.get_joystick_value, controller.button_pressed
 from time import sleep
 pg.init()
 
@@ -48,9 +46,10 @@ O_TRACK = 'HabcdijklmnopqrG'
 
 FLOWER_SPACES = ('h', 't', 'l', 'd', 'r')
 
-def play(s):
+def play(s, c):
     global flower, screen, width, small_font, font, render_text
     screen = s
+    get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
     width = screen.get_width()
     small_font = pg.font.SysFont(None, int(width/16))
     font = pg.font.SysFont(None, int(width/8))
@@ -479,4 +478,4 @@ def getValidMoves(board, player, flipTally):
 
 
 if __name__ == '__main__':
-    play(pg.display.set_mode((400, 400)))
+    play(pg.display.set_mode((400, 400)), Controller())

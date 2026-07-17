@@ -11,8 +11,6 @@ try:
     from controller_mac import Controller
 except ModuleNotFoundError:
     from controller_pi import Controller
-controller = Controller() #Create a Controller object.
-get_joystick_value, button_pressed = controller.get_joystick_value, controller.button_pressed
 from time import sleep
 
 # Set up the constants:
@@ -41,10 +39,11 @@ an army of hungry robots by
 making them crash into each
 other or dead robots.'''
 
-def play(s):
-    global screen, avatars, avatar, robot, dead_robot, font, small_font, width, render_text
+def play(s, c):
+    global screen, avatars, avatar, robot, dead_robot, font, small_font, width, render_text, get_joystick_value, button_pressed
 
     screen = s
+    get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
     width = screen.get_width()
     pg.display.set_caption('Hungry Robots')
     avatars = [pg.image.load('boy.png').convert_alpha(), pg.image.load('girl.png').convert_alpha()]
@@ -367,4 +366,4 @@ def moveRobots(board, robotPositions, playerPosition):
 
 # If this program was run (instead of imported), run the game:
 if __name__ == '__main__':
-    play(pg.display.set_mode((600, 600)))
+    play(pg.display.set_mode((600, 600)), Controller())

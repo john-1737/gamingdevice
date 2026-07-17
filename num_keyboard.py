@@ -4,13 +4,12 @@ try:
     from controller_mac import Controller
 except ModuleNotFoundError:
     from controller_pi import Controller
-controller = Controller() #Create a Controller object.
-get_joystick_value, button_pressed = controller.get_joystick_value, controller.button_pressed
 from time import sleep
 
-def int_keyboard(s, startnum='', inittext=''):
-    global screen, textfont, width, smallfont
+def int_keyboard(s, c, startnum='', inittext=''):
+    global screen, textfont, width, smallfont, get_joystick_value, button_pressed
     screen = s
+    get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
     startnum = str(startnum)
     width = screen.get_width()
     help = pg.transform.scale(pg.image.load('help.png').convert_alpha(), (width/4, width/4))
@@ -148,9 +147,10 @@ def int_keyboard(s, startnum='', inittext=''):
         pg.display.update()
 pg.font.init()
 
-def float_keyboard(s, startnum='', inittext=''):
-    global screen, textfont, width, smallfont
+def float_keyboard(s, c, startnum='', inittext=''):
+    global screen, textfont, width, smallfont, get_joystick_value, button_pressed
     screen = s
+    get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
     startnum = str(startnum)
     width = screen.get_width()
     help = pg.transform.scale(pg.image.load('help.png').convert_alpha(), (width/4, width/4))
@@ -355,4 +355,4 @@ close keyboard'''.splitlines(),
         pg.display.update()
 
 if __name__ == '__main__':
-    float_keyboard(pg.display.set_mode((300, 300)))
+    float_keyboard(pg.display.set_mode((300, 300)), Controller())

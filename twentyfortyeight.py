@@ -9,13 +9,11 @@ Tags: large, game, puzzle"""
 import random, sys
 import pygame as pg
 from pygame.locals import *
+from time import sleep
 try:
     from controller_mac import Controller
 except ModuleNotFoundError:
     from controller_pi import Controller
-controller = Controller() #Create a Controller object.
-get_joystick_value, button_pressed = controller.get_joystick_value, controller.button_pressed
-from time import sleep
 
 # Set up the constants:
 BLANK = ''  # A value that represents a blank space on the board.
@@ -34,9 +32,10 @@ image = '2048.png'
 
 colors = ((255, 0, 0), (255, 255, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255), (255, 0, 255))
 
-def play(s):
+def play(s, c):
     global screen, font, smallfont, width
     screen = s
+    get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
     width = screen.get_width()
     pg.font.init()
     font = pg.font.SysFont(None, int(width/9))
@@ -324,4 +323,4 @@ def isFull(board):
 
 # If this program was run (instead of imported), run the game:
 if __name__ == '__main__':
-    play(pg.display.set_mode(400, 400))
+    play(pg.display.set_mode(400, 400), Controller())
