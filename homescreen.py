@@ -10,6 +10,8 @@ try:
 except ModuleNotFoundError:
     from controller_pi import Controller
     screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+    from os import chdir
+    chdir('gamingdevice')
 from keyboard import keyboard
 
 controller = Controller() #Create a Controller object.
