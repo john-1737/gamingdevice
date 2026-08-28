@@ -25,8 +25,8 @@ def play(s, c):
     width = screen.get_width()
     pg.init()
     pg.font.init()
-    font = pg.font.SysFont('Arial', int(width/21))
-    titlefont = pg.font.SysFont('Arial', int(width/8))
+    font = pg.font.Font('Arial.ttf', int(width/21))
+    titlefont = pg.font.Font('Arial.ttf', int(width/8))
 
     def render_text(text, pos, color=(0, 0, 0), font=font):
         text_surface = font.render(text, True, color)

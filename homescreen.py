@@ -9,7 +9,7 @@ try:
     screen = pg.display.set_mode((300, 300))
 except ModuleNotFoundError:
     from controller_pi import Controller
-    screen = pg.display.set_mode((720, 720))
+    screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
     from os import chdir
     chdir('/home/gaming/gamingdevice')
 from keyboard import keyboard
@@ -41,9 +41,9 @@ for i in listdir():
         apps.append((name, image, filename, help))
 pages = len(apps) // 16
 pg.font.init()
-font = pg.font.SysFont('verdana', int(width/24))
-largefont = pg.font.SysFont('verdana', int(width/7))
-smallfont = pg.font.SysFont('verdana', int(width/14))
+font = pg.font.Font('Verdana.ttf', int(width/24))
+largefont = pg.font.Font('Verdana.ttf', int(width/7))
+smallfont = pg.font.Font('Verdana.ttf', int(width/14))
 
 def render_text(text, pos, center=False, color=(255, 255, 255), font=font, image=None):
     text_surface = font.render(text, True, color)
