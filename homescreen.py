@@ -17,7 +17,6 @@ from keyboard import keyboard
 controller = Controller() #Create a Controller object.
 get_joystick_value, button_pressed = controller.get_joystick_value, controller.button_pressed
 
-screen = pg.display.set_mode((300, 300))
 width = screen.get_width()
 pg.display.set_caption('Gaming Device Home Screen')
 modules = ['joystick.py', 'homescreen.py', 'help.py', 'joystick.py', 'code.py', 'num_keyboard.py', 'num_keyboard2.py', 'keyboard.py', 'buttons.py', 'controller_mac.py',\
