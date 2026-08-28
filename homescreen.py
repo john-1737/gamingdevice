@@ -364,7 +364,7 @@ while True:
                 cursor -= 16
                 sleep(0.2)
     if button_pressed(4):
-        exec(f'{apps[cursor][2]}.play(screen)')
+        exec(f'{apps[cursor][2]}.play(screen, controller)')
         sleep(0.2)
     elif button_pressed(2):
         show_help(apps[cursor][3])
