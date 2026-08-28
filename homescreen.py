@@ -9,7 +9,7 @@ try:
     screen = pg.display.set_mode((300, 300))
 except ModuleNotFoundError:
     from controller_pi import Controller
-    screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+    screen = pg.display.set_mode((720, 720), pg.FULLSCREEN)
     from os import chdir
     chdir('/home/gaming/gamingdevice')
 from keyboard import keyboard
