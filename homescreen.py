@@ -19,6 +19,7 @@ get_joystick_value, button_pressed = controller.get_joystick_value, controller.b
 
 width = screen.get_width()
 pg.display.set_caption('Gaming Device Home Screen')
+pg.mouse.set_visible(False)
 modules = ['joystick.py', 'homescreen.py', 'help.py', 'joystick.py', 'code.py', 'num_keyboard.py', 'num_keyboard2.py', 'keyboard.py', 'buttons.py', 'controller_mac.py',\
            'controller_pi.py', 'test.py', 'test2.py']
 apps = []
