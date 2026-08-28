@@ -1,0 +1,2 @@
+console=serial0,115200 console=tty3 root=PARTUUID=8eee7c95-02 rootfstype=ext4 fsck.repair=yes rootwait quiet loglevel=3 vt.global_cursor_default=0 splash plymouth.ignore-serial-consoles ds=nocloud;i=rpi-imager-1776025705027 
+cfg80211.ieee80211_regdom=US video=HDMI-A-1:720x720M@60,rotate=180

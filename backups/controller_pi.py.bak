@@ -1,0 +1,58 @@
+# SPDX-FileCopyrightText: 2019 Mikey Sklar for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
+import os
+import time
+import busio
+import digitalio
+import board
+import adafruit_mcp3xxx.mcp3008 as MCP
+from adafruit_mcp3xxx.analog_in import AnalogIn
+import pygame as pg
+from pygame.locals import *
+from gpiozero import Button
+
+def remap_range(value, left_min, left_max, right_min, right_max):
+    # this remaps a value from original (left) range to new (right) range
+    # Figure out how 'wide' each range is
+    left_span = left_max - left_min
+    right_span = right_max - right_min
+
+    # Convert the left range into a 0-1 range (int)
+    valueScaled = int(value - left_min) / int(left_span)
+
+    # Convert the 0-1 range into a value in the right range.
+    return int(right_min + (valueScaled * right_span))
+
+class Controller:
+    def __init__(self):
+        self.spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
+
+        # create the cs (chip select)
+        self.cs = digitalio.DigitalInOut(board.D22)
+
+        # create the mcp object
+        self.mcp = MCP.MCP3008(self.spi, self.cs)
+
+        # create an analog input channel on pin 0
+        self.joysticks = ((AnalogIn(self.mcp, MCP.P1), AnalogIn(self.mcp, MCP.P0)), (AnalogIn(self.mcp, MCP.P3), AnalogIn(self.mcp, MCP.P2)))
+
+        self.buttons = (Button(4), Button(14), Button(15), Button(17), Button(2), Button(3))
+
+        self.last_read = 0       # this keeps track of the last potentiometer value
+        self.tolerance = 250     # to keep from being jittery we'll only change
+                            # volume when the pot has moved a significant amount
+                            # on a 16-bit ADC
+
+    def get_joystick_value(self, joystick, axis):
+        if joystick == 1:
+            return round(remap_range(self.joysticks[joystick][axis].value, 0, 65535, 0, 200) - 100)
+        else:
+            return -round(remap_range(self.joysticks[joystick][axis].value, 0, 65535, 0, 200) - 100)
+
+    def get_axis_value(self, joystick, axis):
+        return round(remap_range(self.joysticks[joystick][axis].value, 0, 65535, 0, 200) - 100)*(-1 if joystick == 1 else 1)*(-1 if axis == 1 else 1)
+        
+    def button_pressed(self, button):
+        return self.buttons[button].is_pressed

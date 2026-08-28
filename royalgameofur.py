@@ -211,7 +211,7 @@ def play(s, c):
                     if x in (8, 9):
                         break
                     # Perform the selected move on the board:
-                    if y in (0, 4) and x in (0, 1, 2, 3) and 'home' in validMoves:
+                    if y == (0 if turn == X_PLAYER else 4) and x in (0, 1, 2, 3) and 'home' in validMoves:
                         # Subtract tokens at home if moving from home:
                         gameBoard[home] -= 1
                         nextTrackSpaceIndex = flipTally
@@ -247,7 +247,7 @@ def play(s, c):
                     if movingOntoGoal:
                         gameBoard[goal] += 1
                         # Check if the player has won:
-                        if gameBoard[goal] == 1:
+                        if gameBoard[goal] == 8:
                             displayBoard(gameBoard)
                             status = 'win'
                             break
@@ -292,7 +292,7 @@ def play(s, c):
             color = {'X': 'red', 'O': 'blue'}
             if status == 'win':
                 render_text(f'{color[turn]} wins!', (0, width/8*5))
-                render_text('Press SPACE to play again.', (0, width/8*5), small_font)
+                render_text('Press left joystick to play again.', (0, width/8*6), small_font)
                 pg.display.update()
                 continue
             if status == 'flower land':

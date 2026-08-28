@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Gaming Device
+Exec=/home/gaming/gamingdevice/start_gamingdevice.sh
+X-GNOME-Autostart-enabled=true

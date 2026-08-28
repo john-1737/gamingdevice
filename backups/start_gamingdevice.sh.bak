@@ -1,0 +1,5 @@
+#!/bin/bash
+export DISPLAY=:0 
+export XAUTHORITY=/home/gaming/.Xauthority 
+export  XDG_RUNTIME_DIR=/run/user/1000 
+exec  /home/gaming/gamingdevice/gaming_venv/bin/python /home/gaming/gamingdevice/homescreen.py >> /home/gaming/gamingdevice/homescreen.log 2>&1
