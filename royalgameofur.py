@@ -142,7 +142,7 @@ def play(s, c):
             flipTally += result
         lost_turn = False
         playing = True
-        x, y = 0, 0
+        x, y = 0, 4
         while playing:  # Main game loop.
             # Set up some variables for this turn:
             if turn == X_PLAYER:
