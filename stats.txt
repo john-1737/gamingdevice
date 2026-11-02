@@ -1,3 +1,5 @@
 lake-sunrise.png
 True
+False
+False
 True

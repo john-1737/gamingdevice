@@ -11,15 +11,15 @@ keyboards = ('abcdefghijklmnopqrstuvwxyz',
 '1234567890?!.,@#$%^&*()/\'"',
 '1234567890{}[]+-=_|\\:;<>~`')
 
-def keyboard(s, c, starttext='', inittext=''):
+def keyboard(s, c, starttext='', inittext='', darkmode=True):
     global screen, get_joystick_value, button_pressed, font, width, smallfont
     screen = s
     get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
     width = screen.get_width()
     help = pg.transform.scale(pg.image.load('help.png').convert_alpha(), (width/6, width/6))
     clear = pg.transform.scale(pg.image.load('clear.png').convert_alpha(), (width/6, width/6))
-    font = pg.font.SysFont('verdana', int(width/7))
-    smallfont = pg.font.SysFont('verdana', int(width/14))
+    font = pg.font.Font('Verdana.ttf', int(width/7))
+    smallfont = pg.font.Font('Verdana.ttf', int(width/14))
     text_cursor = len(starttext)
     current_kb = 0
     cursor = 1
@@ -29,7 +29,7 @@ def keyboard(s, c, starttext='', inittext=''):
                 pg.quit()
                 exit()
         if button_pressed(1):
-            return None
+            return ''
         elif button_pressed(3) and starttext != '':
             starttext = list(starttext)
             del starttext[text_cursor-1]
@@ -50,8 +50,8 @@ def keyboard(s, c, starttext='', inittext=''):
                 text_cursor += 1
                 sleep(0.2)
             elif cursor == 27:
-                if not show_help():
-                    return None
+                if not show_help(darkmode):
+                    return ''
                 sleep(0.2)
             elif cursor == 0:
                 clear_cursor = 1
@@ -63,7 +63,7 @@ def keyboard(s, c, starttext='', inittext=''):
                             pg.quit()
                             exit()
                     if button_pressed(1):
-                        return None
+                        return ''
                         sleep(0.2)
                     elif button_pressed(4):
                         if not clear_cursor:
@@ -81,11 +81,11 @@ def keyboard(s, c, starttext='', inittext=''):
                             if clear_cursor != 0:
                                 clear_cursor -= 1
                                 sleep(0.2)
-                    screen.fill((0, 0, 0))
-                    render_text('Clear all?', (0, 0), font=font)
-                    render_text('Yes', (0, width/6), font=font)
-                    render_text('No', (0, width/3), font=font)
-                    pg.draw.rect(screen, (255, 255, 0), pg.Rect(0, width/6*(clear_cursor+1), width, width/6), 2)
+                    screen.fill((255-darkmode*255,)*3)
+                    render_text('Clear all?', (0, 0), font=font, color=(darkmode*255,)*3)
+                    render_text('Yes', (0, width/6), font=font, color=(darkmode*255,)*3)
+                    render_text('No', (0, width/3), font=font, color=(darkmode*255,)*3)
+                    pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(0, width/6*(clear_cursor+1), width, width/6), 2)
                     pg.display.update()
         elif button_pressed(5):
             return starttext
@@ -137,24 +137,24 @@ def keyboard(s, c, starttext='', inittext=''):
             else:
                 text_cursor = len(starttext)
             sleep(0.2)
-        screen.fill((0,0,0))
+        screen.fill((255-darkmode*255,)*3)
         if cursor == 28:
-            pg.draw.rect(screen, (255, 255, 0), pg.Rect(width/2, width/6*5, width/2, width/6), 2)
+            pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(width/2, width/6*5, width/2, width/6), 2)
         else:
-            pg.draw.rect(screen, (255, 255, 0), pg.Rect(((cursor+5)%6)*width/6, ((cursor+5)//6)*width/6, width/6, width/6), 2)
+            pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(((cursor+5)%6)*width/6, ((cursor+5)//6)*width/6, width/6, width/6), 2)
         for i, j in enumerate(keyboards[current_kb]):
-            render_text(j, (((i+6)%6)*width/6+width/12, ((i+6)//6)*width/6+width/12), center=True, font=font)
-        render_text('space', (width/12*9, width/12*11), center=True, font=font)
+            render_text(j, (((i+6)%6)*width/6+width/12, ((i+6)//6)*width/6+width/12), center=True, font=font, color=(darkmode*255,)*3)
+        render_text('space', (width/12*9, width/12*11), center=True, font=font, color=(darkmode*255,)*3)
         textwidth = font.render(starttext[:text_cursor], True, (255, 255, 255)).get_rect().width + font.render('|', True, (255, 255, 255)).get_rect().width
         spacewidth = font.render(starttext[text_cursor:], True, (255, 255, 255)).get_rect().width
         if starttext == '':
             render_text(inittext, (0, 0), font=font, color=(128, 128, 128))
         elif textwidth+spacewidth <= width/6*5:
-            render_text(starttext[:text_cursor], (0, 0), font=font)
+            render_text(starttext[:text_cursor], (0, 0), font=font, color=(darkmode*255,)*3)
             render_text('|', (textwidth-font.render('|', True, (255, 255, 255)).get_rect().width, 0), font=font, color=(0, 0, 255))
-            render_text(starttext[text_cursor:], (textwidth, 0), font=font)
+            render_text(starttext[text_cursor:], (textwidth, 0), font=font, color=(darkmode*255,)*3)
         else:
-            render_text(starttext[:text_cursor], (width/6*5-font.render('|', True, (255, 255, 255)).get_rect().width, 0), font=font, lanchor=True)
+            render_text(starttext[:text_cursor], (width/6*5-font.render('|', True, (255, 255, 255)).get_rect().width, 0), font=font, lanchor=True, color=(darkmode*255,)*3)
             render_text('|', (width/6*5, 0), font=font, lanchor=True, color=(0, 0, 255))
         screen.blit(help, (width/6*2, width/6*5))
         screen.blit(clear, (width/6*5, 0))
@@ -178,7 +178,7 @@ def render_text(text, pos, font, center=False, lanchor=False, color=(255, 255, 2
             screen.blit(text_surface, (pos[0]+(image.get_rect().width), pos[1]))
             screen.blit(image, pos)
 
-def show_help():
+def show_help(darkmode):
     page = 0
     triangle = pg.transform.scale(pg.image.load('triangle.png').convert_alpha(), (width/12, width/12))
     circle = pg.transform.scale(pg.image.load('circle.png').convert_alpha(), (width/12, width/12))
@@ -220,12 +220,12 @@ close keyboard'''.splitlines(),
                 page -= 1
                 sleep(0.2)
         page %= len(helptext)
-        screen.fill((0, 0, 0))
-        render_text('Help', (0, 0), font=font)
+        screen.fill((255-darkmode*255,)*3)
+        render_text('Help', (0, 0), font=font, color=(darkmode*255,)*3)
         for i, j in enumerate(helptext[page], start=2):
-            render_text(j, (0, width/12 * i), font=smallfont, image=images[page][i-2])
-        render_text('Use left joystick to navigate.', (0, width/12*10), font=smallfont)
-        render_text('Press left joystick to exit.', (0, width/12*11), font=smallfont)
+            render_text(j, (0, width/12 * i), font=smallfont, image=images[page][i-2], color=(darkmode*255,)*3)
+        render_text('Use left joystick to navigate.', (0, width/12*10), font=smallfont, color=(darkmode*255,)*3)
+        render_text('Press left joystick to exit.', (0, width/12*11), font=smallfont, color=(darkmode*255,)*3)
         pg.display.update()
 
 if __name__ == '__main__':

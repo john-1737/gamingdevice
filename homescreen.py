@@ -2,7 +2,7 @@
 import pygame as pg
 from pygame.locals import *
 from os import listdir
-from time import sleep
+from time import sleep, localtime
 pg.init()
 try:
     from controller_mac import Controller
@@ -45,6 +45,7 @@ pg.font.init()
 font = pg.font.Font('Verdana.ttf', int(width/24))
 largefont = pg.font.Font('Verdana.ttf', int(width/7))
 smallfont = pg.font.Font('Verdana.ttf', int(width/14))
+tfont = pg.font.Font('Verdana.ttf', int(width/9))
 
 def render_text(text, pos, center=False, color=(255, 255, 255), font=font, image=None):
     text_surface = font.render(text, True, color)
@@ -92,7 +93,8 @@ help page for Editor Mode.'''.splitlines(), start=2):
 
 def show_search():
     search_apps = sorted(apps, key=lambda x: x[0])
-    darkmode = eval(read_settings(2))
+    lightlabels = eval(read_settings(2))
+    darkmode = eval(read_settings(1))
     search_criteria = ''
     search_pages = len(search_apps) // 7 + 1
     search_page = 0
@@ -104,11 +106,12 @@ def show_search():
                 pg.quit()
                 exit()
         if button_pressed(1):
+            sleep(0.2)
             return
         elif button_pressed(4):
             if selected == 0:
                 sleep(0.2)
-                search_criteria = keyboard(screen, controller, search_criteria, 'Type to search')
+                search_criteria = keyboard(screen, controller, search_criteria, 'Type to search', darkmode=darkmode)
                 search_criteria = '' if search_criteria == None else search_criteria
             else:
                 exec(f'{search_apps[selected-1][2]}.play(screen, controller)')
@@ -134,21 +137,21 @@ def show_search():
         wallpaper = read_settings(0)
         screen.fill((0, 0, 0))
         screen.blit(pg.transform.scale(pg.image.load(wallpaper).convert_alpha(), (width, width)), (0, 0))
-        render_text('Search', (0, 0), font=largefont, color=(darkmode*255,)*3)
+        render_text('Search', (0, 0), font=largefont, color=(lightlabels*255,)*3)
         if search_criteria:
-            render_text(search_criteria, (width/12, width/6), font=smallfont, color=(darkmode*255,)*3)
+            render_text(search_criteria, (width/12, width/6), font=smallfont, color=(lightlabels*255,)*3)
         else:
             render_text('Type to search', (width/12, width/6), font=smallfont, color=(100, 100, 100))
         screen.blit(pg.transform.scale(pg.image.load('magnifier.png').convert_alpha(), (width/12, width/12)), (0, width/6))
         for i, j in enumerate(search_apps[search_page:search_page+7], start=3):
-            render_text(j[0], (width/12, width/12 * i), font=smallfont, color=(darkmode*255,)*3)
+            render_text(j[0], (width/12, width/12 * i), font=smallfont, color=(lightlabels*255,)*3)
             screen.blit(pg.transform.scale(pg.image.load(j[1]).convert_alpha(), (width/12, width/12)), (0, width/12 * i))
         if selected == 0:
-            pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(0, width/12*2, width, width/12), 2)
+            pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[lightlabels], pg.Rect(0, width/12*2, width, width/12), 2)
         else:
-            pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(0, width/12*(((selected-1)%7)+3), width, width/12), 2)
-        render_text('Use left joystick to navigate.', (0, width/12*10), font=smallfont, color=(darkmode*255,)*3)
-        render_text('Press square to exit.', (0, width/12*11), font=smallfont, color=(darkmode*255,)*3)
+            pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[lightlabels], pg.Rect(0, width/12*(((selected-1)%7)+3), width, width/12), 2)
+        render_text('Use left joystick to navigate.', (0, width/12*10), font=smallfont, color=(lightlabels*255,)*3)
+        render_text('Press square to exit.', (0, width/12*11), font=smallfont, color=(lightlabels*255,)*3)
         pg.display.update()
 
 def show_help(text, title='Help'):
@@ -157,8 +160,11 @@ def show_help(text, title='Help'):
     circle = pg.transform.scale(pg.image.load('circle.png').convert_alpha(), (width/12, width/12))
     square = pg.transform.scale(pg.image.load('square.png').convert_alpha(), (width/12, width/12))
     cross = pg.transform.scale(pg.image.load('cross.png').convert_alpha(), (width/12, width/12))
+    warning = pg.transform.scale(pg.image.load('warning.png').convert_alpha(), (width/12, width/12))
     helptext = text.splitlines()
-    helptext = [helptext[i:i + 8] for i in range(0, len(helptext), 8)]
+    showpage = eval(read_settings(3))
+    pagelength = 7 if len(helptext) > 8 and showpage else 8
+    helptext = [helptext[i:i + pagelength] for i in range(0, len(helptext), pagelength)]
     darkmode = eval(read_settings(1))
     sleep(0.2)
     while True:
@@ -182,10 +188,14 @@ def show_help(text, title='Help'):
         screen.fill((255-darkmode*255,)*3)
         render_text(title, (0, 0), font=largefont, color=(darkmode*255,)*3)
         for i, j in enumerate(helptext[page], start=2):
-            for k, l in zip(('{square}', '{triangle}', '{circle}', '{cross}', ''), (square, triangle, circle, cross, None)):
+            for k, l in zip(('{square}', '{triangle}', '{circle}', '{cross}', '{warning}', ''), (square, triangle, circle, cross, warning, None)):
                 if j.startswith(k):
                     render_text(j[len(k):], (0, width/12 * i), font=smallfont, color=(darkmode*255,)*3, image=l)
                     break
+        pg.draw.line(screen, (darkmode*255,)*3, (0, width/12*10), (width, width/12*10), width=1)
+        if len(helptext) != 1 and showpage:
+            pg.draw.line(screen, (darkmode*255,)*3, (0, width/12*9), (width, width/12*9), width=1)
+            render_text(f'Page {page+1} of {len(helptext)}', (0, width/12*9), font=smallfont, color=(darkmode*255,)*3)
         render_text('Use left joystick to navigate.', (0, width/12*10), font=smallfont, color=(darkmode*255,)*3)
         render_text('Press left joystick to exit.', (0, width/12*11), font=smallfont, color=(darkmode*255,)*3)
         pg.display.update()
@@ -228,10 +238,10 @@ def help_menu():
         pg.display.update()
 
 def show_settings(selected=0):
-    options = ('Wallpaper', 'Dark Mode', 'Light Home Screen Labels', 'Editor Mode', 'Back')
-    images = ("'wallpaper.png'", "'check.png' if darkmode else 'check-empty.png'", "'check.png' if lightlabels else 'check-empty.png'",\
-              "'editormode.png'", "'back.png'")
-    commands = (configure_wallpaper, toggle_darkmode, toggle_lightlabels, editor_mode)
+    options = ('Wallpaper', 'Dark Mode', 'Light Home Screen Labels', 'Show Help Page Number', 'Show Home Screen Info', 'Editor Mode', 'Back')
+    images = ("'wallpaper.png'", "'check.png' if darkmode else 'check-empty.png'", "'check.png' if lightlabels else 'check-empty.png'", "'check.png' if showpage else 'check-empty.png'",\
+              "'check.png' if showinfo else 'check-empty.png'", "'editormode.png'", "'back.png'")
+    commands = (configure_wallpaper, toggle_darkmode, toggle_lightlabels, toggle_showpage, toggle_showinfo, editor_mode)
     sleep(0.2)
     while True:
         for event in pg.event.get():
@@ -255,6 +265,8 @@ def show_settings(selected=0):
         selected %= len(options)
         darkmode = eval(read_settings(1))
         lightlabels = eval(read_settings(2))
+        showpage = eval(read_settings(3))
+        showinfo = eval(read_settings(4))
         screen.fill((255-darkmode*255,)*3)
         render_text('Settings', (0, 0), font=largefont, color=(darkmode*255,)*3)
         for i, j in enumerate(zip(options, images), start=2):
@@ -275,6 +287,18 @@ def toggle_lightlabels():
     lightlabels = eval(read_settings(2))
     lightlabels = not lightlabels
     write_settings(2, str(lightlabels))
+    return True
+
+def toggle_showpage():
+    showpage = eval(read_settings(3))
+    showpage = not showpage
+    write_settings(3, str(showpage))
+    return True
+
+def toggle_showinfo():
+    showinfo = eval(read_settings(4))
+    showinfo = not showinfo
+    write_settings(4, str(showinfo))
     return True
 
 def write_settings(line, text):
@@ -324,7 +348,8 @@ def configure_wallpaper():
         render_text('Press square to exit.', (0, width/12*11), font=smallfont, color=(darkmode*255,)*3)
         pg.display.update()
 
-cursor = 0
+showinfo = eval(read_settings(4))
+cursor = 2*showinfo
 page = 0
 while True:
     for event in pg.event.get():
@@ -334,7 +359,7 @@ while True:
     val = get_joystick_value(0, 0)
     if abs(val) > 75:
         if val >= 0:
-            if cursor != len(apps) - 1:
+            if cursor != len(apps) + 2*showinfo - 1:
                 cursor += 1
                 sleep(0.2)
         else:
@@ -344,7 +369,7 @@ while True:
     val = get_joystick_value(0, 1)
     if abs(val) > 75:
         if val <= 0:
-            if cursor + 4 <= len(apps) - 1:
+            if cursor + 4 <= len(apps) + 2*showinfo - 1:
                 cursor += 4
                 sleep(0.2)
         else:
@@ -365,10 +390,10 @@ while True:
                 cursor -= 16
                 sleep(0.2)
     if button_pressed(4):
-        exec(f'{apps[cursor][2]}.play(screen, controller)')
+        exec(f'{([apps[0]] * 2 * showinfo + apps)[cursor][2]}.play(screen, controller)')
         sleep(0.2)
     elif button_pressed(2):
-        show_help(apps[cursor][3])
+        show_help(([apps[0]] * 2 * showinfo + apps)[cursor][3])
         sleep(0.2)
     elif button_pressed(0):
         show_settings()
@@ -380,13 +405,16 @@ while True:
         show_search()
         sleep(0.2)
     page = cursor // 16
-    if cursor >= len(apps):
-        cursor = len(apps) - 1
+    showinfo = eval(read_settings(4))
+    if cursor >= len(apps) + 2*showinfo:
+        cursor = len(apps) + 2*showinfo - 1
+    if cursor < 2 and showinfo:
+        cursor = 2
     wallpaper = read_settings(0)
     lightlabels = eval(read_settings(2))
     screen.fill((0, 0, 0))
     screen.blit(pg.transform.scale(pg.image.load(wallpaper).convert_alpha(), (width, width)), (0, 0))
-    for i, j in enumerate(apps[page*16:]):
+    for i, j in enumerate(([('', 'blank.png', apps[0][2], apps[0][3])] * 2 * showinfo + apps)[page*16:]):
         screen.blit(pg.transform.scale(pg.image.load(j[1]).convert_alpha(), (width/20*4, width/20*4)), ((i%4)*width/4+width/40, (i//4)*width/4))
         if font.render(j[0], True, (255, 255, 255)).get_rect().width <= width/4:
             render_text(j[0], ((i%4)*width/4+width/8, (i//4)*width/4+width/40*9), center=True, color=(lightlabels*255,)*3)
@@ -396,4 +424,7 @@ while True:
                     render_text((j[0][:k-1])+'...', ((i%4)*width/4+width/8, (i//4)*width/4+width/40*9), center=True, color=(lightlabels*255,)*3)
                     break
     pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[lightlabels], pg.Rect(((cursor-16*page)%4)*width/4, ((cursor-16*page)//4)*width/4, width/4, width/4), 2)
+    t = localtime()
+    if showinfo and page == 0: 
+        render_text(f'{t.tm_hour%12}:{str(t.tm_min).zfill(2)}', (0, 0), font=tfont, color=(lightlabels*255,)*3)
     pg.display.update()

@@ -133,7 +133,7 @@ def play(s, c):
         playing = True
         runner_y = width/4*3
         runner_jump = 0
-        platforms = [[0, width/4*3, width, width/4, True, False]]
+        platforms = [[0, width/4*3, width, width/4, True, True]]
         clock = pg.time.Clock()
         timer = 0
         score = 0

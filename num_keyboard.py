@@ -6,18 +6,18 @@ except ModuleNotFoundError:
     from controller_pi import Controller
 from time import sleep
 
-def int_keyboard(s, c, startnum='', inittext=''):
+def int_keyboard(s, c, startnum='', inittext='', darkmode=True):
     global screen, textfont, width, smallfont, get_joystick_value, button_pressed
     screen = s
     get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
-    startnum = str(startnum)
+    starttext = str(startnum)
     width = screen.get_width()
     help = pg.transform.scale(pg.image.load('help.png').convert_alpha(), (width/4, width/4))
     clear = pg.transform.scale(pg.image.load('clear.png').convert_alpha(), (width/4, width/4))
-    font = pg.font.SysFont('verdana', int(width/5))
-    textfont = pg.font.SysFont('verdana', int(width/7))
-    smallfont = pg.font.SysFont('verdana', int(width/14))
-    text_cursor = len(startnum)
+    font = pg.font.Font('Verdana.ttf', int(width/5))
+    textfont = pg.font.Font('Verdana.ttf', int(width/7))
+    smallfont = pg.font.Font('Verdana.ttf', int(width/14))
+    text_cursor = len(starttext)
     cursor = 1
     while True:
         for event in pg.event.get():
@@ -27,26 +27,26 @@ def int_keyboard(s, c, startnum='', inittext=''):
         if button_pressed(1):
             return None
         elif button_pressed(3) and starttext != '':
-            startnum = list(starttext)
-            del startnum[text_cursor-1]
-            startnum = ''.join(startnum)
+            starttext = list(starttext)
+            del starttext[text_cursor-1]
+            starttext = ''.join(starttext)
             text_cursor -= 1
             sleep(0.2)
         elif button_pressed(4):
             if cursor in range(1, 10):
-                startnum = list(startnum)
-                startnum.insert(text_cursor, ' 123456789'[cursor])
-                startnum = ''.join(startnum)
+                starttext = list(starttext)
+                starttext.insert(text_cursor, ' 123456789'[cursor])
+                starttext = ''.join(starttext)
                 text_cursor += 1
                 sleep(0.2)
             elif cursor == 11:
-                startnum = list(startnum)
-                startnum.insert(text_cursor, '0')
-                startnum = ''.join(startnum)
+                starttext = list(starttext)
+                starttext.insert(text_cursor, '0')
+                starttext = ''.join(starttext)
                 text_cursor += 1
                 sleep(0.2)
             elif cursor == 10:
-                if not show_help():
+                if not show_help(darkmode):
                     return None
                 sleep(0.2)
             elif cursor == 0:
@@ -77,16 +77,16 @@ def int_keyboard(s, c, startnum='', inittext=''):
                             if clear_cursor != 0:
                                 clear_cursor -= 1
                                 sleep(0.2)
-                    screen.fill((0, 0, 0))
-                    render_text('Clear all?', (0, 0), font=textfont)
-                    render_text('Yes', (0, width/6), font=textfont)
-                    render_text('No', (0, width/3), font=textfont)
-                    pg.draw.rect(screen, (255, 255, 0), pg.Rect(0, width/6*(clear_cursor+1), width, width/6), 2)
+                    screen.fill((255-darkmode*255,)*3)
+                    render_text('Clear all?', (0, 0), font=textfont, color=(darkmode*255,)*3)
+                    render_text('Yes', (0, width/6), font=textfont, color=(darkmode*255,)*3)
+                    render_text('No', (0, width/3), font=textfont, color=(darkmode*255,)*3)
+                    pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(0, width/6*(clear_cursor+1), width, width/6), 2)
                     pg.display.update()
         elif button_pressed(5):
-            if startnum == '':
+            if starttext == '':
                 return 0
-            return int(startnum)
+            return int(starttext)
             sleep(0.2)
         val = get_joystick_value(0, 0)
         if abs(val) > 75:
@@ -113,7 +113,7 @@ def int_keyboard(s, c, startnum='', inittext=''):
             if val <= 0: 
                 if text_cursor != 0:
                     text_cursor -= 1
-            elif text_cursor != len(startnum):
+            elif text_cursor != len(starttext):
                 text_cursor += 1
             sleep(0.2)       
         val = get_joystick_value(1, 1)
@@ -121,44 +121,44 @@ def int_keyboard(s, c, startnum='', inittext=''):
             if val <= 0:
                 text_cursor = 0
             else:
-                text_cursor = len(startnum)
+                text_cursor = len(starttext)
             sleep(0.2)
-        screen.fill((0,0,0))
+        screen.fill((255-darkmode*255,)*3)
         if cursor == 11:
-            pg.draw.rect(screen, (255, 255, 0), pg.Rect(width/2, width/4*3, width/2, width/4), 2)
+            pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(width/2, width/4*3, width/2, width/4), 2)
         else:
-            pg.draw.rect(screen, (255, 255, 0), pg.Rect(((cursor+3)%4)*width/4, ((cursor+3)//4)*width/4, width/4, width/4), 2)
+            pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(((cursor+3)%4)*width/4, ((cursor+3)//4)*width/4, width/4, width/4), 2)
         for i, j in enumerate('123456789'):
-            render_text(j, (((i+4)%4)*width/4+width/8, ((i+4)//4)*width/4+width/8), center=True, font=font)
-        render_text('0', (width/8*6, width/8*7), center=True, font=font)
-        textwidth = font.render(startnum[:text_cursor], True, (255, 255, 255)).get_rect().width + font.render('|', True, (255, 255, 255)).get_rect().width
-        spacewidth = font.render(startnum[text_cursor:], True, (255, 255, 255)).get_rect().width
-        if startnum == '':
+            render_text(j, (((i+4)%4)*width/4+width/8, ((i+4)//4)*width/4+width/8), center=True, font=font, color=(darkmode*255,)*3)
+        render_text('0', (width/8*6, width/8*7), center=True, font=font, color=(darkmode*255,)*3)
+        textwidth = font.render(starttext[:text_cursor], True, (255, 255, 255)).get_rect().width + font.render('|', True, (255, 255, 255)).get_rect().width
+        spacewidth = font.render(starttext[text_cursor:], True, (255, 255, 255)).get_rect().width
+        if starttext == '':
             render_text(inittext, (0, 0), font=font, color=(128, 128, 128))
         elif textwidth+spacewidth <= width/4*3:
-            render_text(startnum[:text_cursor], (0, 0), font=font)
+            render_text(starttext[:text_cursor], (0, 0), font=font, color=(darkmode*255,)*3)
             render_text('|', (textwidth-font.render('|', True, (255, 255, 255)).get_rect().width, 0), font=font, color=(0, 0, 255))
-            render_text(startnum[text_cursor:], (textwidth, 0), font=font)
+            render_text(starttext[text_cursor:], (textwidth, 0), font=font, color=(darkmode*255,)*3)
         else:
-            render_text(startnum[:text_cursor], (width/4*3-font.render('|', True, (255, 255, 255)).get_rect().width, 0), font=font, lanchor=True)
+            render_text(starttext[:text_cursor], (width/4*3-font.render('|', True, (255, 255, 255)).get_rect().width, 0), font=font, lanchor=True, color=(darkmode*255,)*3)
             render_text('|', (width/6*5, 0), font=font, lanchor=True, color=(0, 0, 255))
         screen.blit(help, (width/4, width/4*3))
         screen.blit(clear, (width/4*3, 0))
         pg.display.update()
 pg.font.init()
 
-def float_keyboard(s, c, startnum='', inittext=''):
+def float_keyboard(s, c, startnum='', inittext='', darkmode=True):
     global screen, textfont, width, smallfont, get_joystick_value, button_pressed
     screen = s
     get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
-    startnum = str(startnum)
+    starttext = str(startnum)
     width = screen.get_width()
     help = pg.transform.scale(pg.image.load('help.png').convert_alpha(), (width/4, width/4))
     clear = pg.transform.scale(pg.image.load('clear.png').convert_alpha(), (width/4, width/4))
-    font = pg.font.SysFont('verdana', int(width/5))
-    textfont = pg.font.SysFont('verdana', int(width/7))
-    smallfont = pg.font.SysFont('verdana', int(width/14))
-    text_cursor = len(startnum)
+    font = pg.font.Font('Verdana.ttf', int(width/5))
+    textfont = pg.font.Font('Verdana.ttf', int(width/7))
+    smallfont = pg.font.Font('Verdana.ttf', int(width/14))
+    text_cursor = len(starttext)
     cursor = 1
     while True:
         for event in pg.event.get():
@@ -168,30 +168,30 @@ def float_keyboard(s, c, startnum='', inittext=''):
         if button_pressed(1):
             return None
         elif button_pressed(3) and starttext != '':
-            startnum = list(starttext)
-            del startnum[text_cursor-1]
-            startnum = ''.join(startnum)
+            starttext = list(starttext)
+            del starttext[text_cursor-1]
+            starttext = ''.join(starttext)
             text_cursor -= 1
             sleep(0.2)
         elif button_pressed(4):
             if cursor in range(1, 10):
-                startnum = list(startnum)
-                startnum.insert(text_cursor, ' 1234567890'[cursor])
-                startnum = ''.join(startnum)
+                starttext = list(starttext)
+                starttext.insert(text_cursor, ' 1234567890'[cursor])
+                starttext = ''.join(starttext)
                 text_cursor += 1
                 sleep(0.2)
             elif cursor == 11:
-                startnum = list(startnum)
-                while '.' in startnum:
-                    startnum.remove('.')
+                starttext = list(starttext)
+                while '.' in starttext:
+                    starttext.remove('.')
                     text_cursor -= 1
-                startnum.insert(text_cursor, '.')
-                startnum = ''.join(startnum)
+                starttext.insert(text_cursor, '.')
+                starttext = ''.join(starttext)
                 text_cursor += 1
                 sleep(0.2)
             elif cursor == 12:
-                if not show_help():
-                    return None
+                if not show_help(darkmode):
+                    return 0
                 sleep(0.2)
             elif cursor == 0:
                 clear_cursor = 1
@@ -203,7 +203,7 @@ def float_keyboard(s, c, startnum='', inittext=''):
                             pg.quit()
                             exit()
                     if button_pressed(1):
-                        return None
+                        return 0
                         sleep(0.2)
                     elif button_pressed(4):
                         if not clear_cursor:
@@ -221,16 +221,16 @@ def float_keyboard(s, c, startnum='', inittext=''):
                             if clear_cursor != 0:
                                 clear_cursor -= 1
                                 sleep(0.2)
-                    screen.fill((0, 0, 0))
-                    render_text('Clear all?', (0, 0), font=textfont)
-                    render_text('Yes', (0, width/6), font=textfont)
-                    render_text('No', (0, width/3), font=textfont)
-                    pg.draw.rect(screen, (255, 255, 0), pg.Rect(0, width/6*(clear_cursor+1), width, width/6), 2)
+                    screen.fill((255-darkmode*255,)*3)
+                    render_text('Clear all?', (0, 0), font=textfont, color=(darkmode*255,)*3)
+                    render_text('Yes', (0, width/6), font=textfont, color=(darkmode*255,)*3)
+                    render_text('No', (0, width/3), font=textfont, color=(darkmode*255,)*3)
+                    pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(0, width/6*(clear_cursor+1), width, width/6), 2)
                     pg.display.update()
         elif button_pressed(5):
-            if startnum == '':
+            if starttext == '':
                 return 0
-            return int(startnum)
+            return int(starttext)
             sleep(0.2)
         val = get_joystick_value(0, 0)
         if abs(val) > 75:
@@ -257,7 +257,7 @@ def float_keyboard(s, c, startnum='', inittext=''):
             if val <= 0: 
                 if text_cursor != 0:
                     text_cursor -= 1
-            elif text_cursor != len(startnum):
+            elif text_cursor != len(starttext):
                 text_cursor += 1
             sleep(0.2)       
         val = get_joystick_value(1, 1)
@@ -265,22 +265,22 @@ def float_keyboard(s, c, startnum='', inittext=''):
             if val <= 0:
                 text_cursor = 0
             else:
-                text_cursor = len(startnum)
+                text_cursor = len(starttext)
             sleep(0.2)
-        screen.fill((0,0,0))
-        pg.draw.rect(screen, (255, 255, 0), pg.Rect(((cursor+3)%4)*width/4, ((cursor+3)//4)*width/4, width/4, width/4), 2)
+        screen.fill((255-darkmode*255,)*3)
+        pg.draw.rect(screen, ((0, 0, 255), (255, 255, 0))[darkmode], pg.Rect(((cursor+3)%4)*width/4, ((cursor+3)//4)*width/4, width/4, width/4), 2)
         for i, j in enumerate('1234567890.'):
-            render_text(j, (((i+4)%4)*width/4+width/8, ((i+4)//4)*width/4+width/8), center=True, font=font)
-        textwidth = font.render(startnum[:text_cursor], True, (255, 255, 255)).get_rect().width + font.render('|', True, (255, 255, 255)).get_rect().width
-        spacewidth = font.render(startnum[text_cursor:], True, (255, 255, 255)).get_rect().width
-        if startnum == '':
+            render_text(j, (((i+4)%4)*width/4+width/8, ((i+4)//4)*width/4+width/8), center=True, font=font, color=(darkmode*255,)*3)
+        textwidth = font.render(starttext[:text_cursor], True, (255, 255, 255)).get_rect().width + font.render('|', True, (255, 255, 255)).get_rect().width
+        spacewidth = font.render(starttext[text_cursor:], True, (255, 255, 255)).get_rect().width
+        if starttext == '':
             render_text(inittext, (0, 0), font=font, color=(128, 128, 128))
         elif textwidth+spacewidth <= width/4*3:
-            render_text(startnum[:text_cursor], (0, 0), font=font)
+            render_text(starttext[:text_cursor], (0, 0), font=font, color=(darkmode*255,)*3)
             render_text('|', (textwidth-font.render('|', True, (255, 255, 255)).get_rect().width, 0), font=font, color=(0, 0, 255))
-            render_text(startnum[text_cursor:], (textwidth, 0), font=font)
+            render_text(starttext[text_cursor:], (textwidth, 0), font=font, color=(darkmode*255,)*3)
         else:
-            render_text(startnum[:text_cursor], (width/4*3-font.render('|', True, (255, 255, 255)).get_rect().width, 0), font=font, lanchor=True)
+            render_text(starttext[:text_cursor], (width/4*3-font.render('|', True, (255, 255, 255)).get_rect().width, 0), font=font, lanchor=True, color=(darkmode*255,)*3)
             render_text('|', (width/6*5, 0), font=font, lanchor=True, color=(0, 0, 255))
         screen.blit(help, (width/4*3, width/4*3))
         screen.blit(clear, (width/4*3, 0))
@@ -304,7 +304,7 @@ def render_text(text, pos, font, center=False, lanchor=False, color=(255, 255, 2
             screen.blit(text_surface, (pos[0]+(image.get_rect().width), pos[1]))
             screen.blit(image, pos)
 
-def show_help():
+def show_help(darkmode):
     page = 0
     triangle = pg.transform.scale(pg.image.load('triangle.png').convert_alpha(), (width/12, width/12))
     circle = pg.transform.scale(pg.image.load('circle.png').convert_alpha(), (width/12, width/12))
@@ -346,13 +346,14 @@ close keyboard'''.splitlines(),
                 page -= 1
                 sleep(0.2)
         page %= len(helptext)
-        screen.fill((0, 0, 0))
-        render_text('Help', (0, 0), font=textfont)
+        screen.fill((255-darkmode*255,)*3)
+        render_text('Help', (0, 0), font=textfont, color=(darkmode*255,)*3)
         for i, j in enumerate(helptext[page], start=2):
-            render_text(j, (0, width/12 * i), font=smallfont, image=images[page][i-2])
-        render_text('Use left joystick to navigate.', (0, width/12*10), font=smallfont)
-        render_text('Press left joystick to exit.', (0, width/12*11), font=smallfont)
+            render_text(j, (0, width/12 * i), font=smallfont, image=images[page][i-2], color=(darkmode*255,)*3)
+        pg.draw.line(screen, (darkmode*255,)*3, (0, width/12*10), (width, width/12*10), width=1)
+        render_text('Use left joystick to navigate.', (0, width/12*10), font=smallfont, color=(darkmode*255,)*3)
+        render_text('Press left joystick to exit.', (0, width/12*11), font=smallfont, color=(darkmode*255,)*3)
         pg.display.update()
 
 if __name__ == '__main__':
-    float_keyboard(pg.display.set_mode((300, 300)), Controller())
+    print(float_keyboard(pg.display.set_mode((300, 300)), Controller(), darkmode=True))

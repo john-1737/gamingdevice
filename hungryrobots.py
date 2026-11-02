@@ -36,8 +36,8 @@ image = 'hungryrobots.png'
 help = '''Welcome to Hungry Robots!
 In this game, you must fight
 an army of hungry robots by
-making them crash into each
-other or dead robots.'''
+making them crash into
+each other or dead robots.'''
 
 def play(s, c):
     global screen, avatars, avatar, robot, dead_robot, font, small_font, width, render_text, get_joystick_value, button_pressed
@@ -45,15 +45,13 @@ def play(s, c):
     screen = s
     get_joystick_value, button_pressed = c.get_joystick_value, c.button_pressed
     width = screen.get_width()
-    pg.display.set_caption('Hungry Robots')
-    avatars = [pg.image.load('boy.png').convert_alpha(), pg.image.load('girl.png').convert_alpha()]
-    lavatars = [pg.image.load('boy2.png').convert_alpha(), pg.image.load('girl2.png').convert_alpha()]
-    lavatars = [pg.transform.scale(i, (width/16, width/16)) for i in lavatars]
-    avatars = [pg.transform.scale(i, (width/40, width/40)) for i in lavatars]
+    avatars = [pg.image.load('boy1.png').convert_alpha(), pg.image.load('girl1.png').convert_alpha()]
+    lavatars = [pg.transform.scale(i, (width/16, width/16)) for i in avatars]
+    avatars = [pg.transform.scale(i, (width/40, width/40)) for i in avatars]
     robot = pg.transform.scale(pg.image.load('robot2.png').convert_alpha(), (width/40, width/40))
     robotl = pg.transform.scale(pg.image.load('robot2.png').convert_alpha(), (width/16, width/16))
-    dead_robotl = pg.transform.scale(pg.image.load('dead robot2.png').convert_alpha(), (width/16, width/16))
-    dead_robot = pg.transform.scale(pg.image.load('dead robot2.png').convert_alpha(), (width/40, width/40))
+    dead_robotl = pg.transform.rotate(pg.transform.scale(pg.image.load('robot2.png').convert_alpha(), (width/16, width/16)), 180)
+    dead_robot = pg.transform.rotate(pg.transform.scale(pg.image.load('robot2.png').convert_alpha(), (width/40, width/40)), 180)
     font = pg.font.SysFont(None, int(width/15))
     small_font = pg.font.SysFont(None, int(width/31))
     avatar = 0

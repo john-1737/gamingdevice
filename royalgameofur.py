@@ -24,11 +24,13 @@ WHITE, RED, BLUE, BLACK, YELLOW, GREEN = (255, 255, 255), (255, 0, 0), (0, 0, 25
 pg.font.init()
 
 name = 'Royal Game of Ur'
-help = '''Welcome to Royal Game of Ur!
-This is a 5,000 year old racing
-game were you must race your
-tokens to the finish line before
-your opponent.
+help = '''Welcome to Royal Game of
+Ur!
+This is a 5,000 year old
+racing game were you must
+race your tokens to the
+finish line before your
+opponent.
 This is a 2-player game.'''
 image = 'royalgameofur.png'
 
@@ -86,24 +88,24 @@ def play(s, c):
                     return
                 screen.fill(BLACK)
                 render_text('Welcome to Royal Game of Ur!', pos=(0, 0), font=small_font)
-                render_text('Inspired by Al Sweigart\'s Royal Game Of Ur.', pos=(0, w/16*15), font=small_font)
+                render_text('Inspired by Al Sweigart\'s Royal Game Of Ur.', pos=(0, w/16), font=small_font)
 
-                render_text('This is a 5,000 year old game. Two players must', pos=(0, w/16), font=small_font)
-                render_text('move their tokens from their home to their goal.', pos=(0,w/16*2), font=small_font)
-                render_text('On your turn you roll four dice and can move one', pos=(0 ,w/16*3), font=small_font)
+                render_text('This is a 5,000 year old game. Two players must', pos=(0, w/16*2), font=small_font)
+                render_text('move their tokens from their home to their goal.', pos=(0,w/16*3), font=small_font)
+                render_text('On your turn you roll four dice and can move one', pos=(0 ,w/16*4), font=small_font)
 
-                render_text('token a number of spaces equal to the points you', pos=(0, w/16*4), font=small_font)
-                render_text('got. Ur is a racing game; the first player to move', pos=(0, w/16*5), font=small_font)
+                render_text('token a number of spaces equal to the points you', pos=(0, w/16*5), font=small_font)
+                render_text('got. Ur is a racing game; the first player to move', pos=(0, w/16*6), font=small_font)
 
-                render_text('all seven of their tokens to their goal wins.', pos=(0, w/16*6), font=small_font)
+                render_text('all seven of their tokens to their goal wins.', pos=(0, w/16*7), font=small_font)
             
-                render_text('To do this, tokens must travel from their home to', pos=(0, w/16*7), font=small_font)
-                render_text('their goal using the above path. If you land on an', pos=(0, w/16*8), font=small_font)
-                render_text('opponent\'s token in the middle track, it gets sent', pos=(0, w/16*9), font=small_font)
-                render_text('back home. The flower spaces let you take', pos=(0, w/16*10), font=small_font)
-                render_text('another turn. Tokens in the middle flower space', pos=(0, w/16*11), font=small_font)
-                render_text('are safe and cannot be landed on. Player 1 uses', pos=(0, w/16*12), font=small_font)
-                render_text('the left joystick and player 2 uses the right.', pos=(0, w/16*13), font=small_font)
+                render_text('To do this, tokens must travel from their home to', pos=(0, w/16*8), font=small_font)
+                render_text('their goal using the above path. If you land on an', pos=(0, w/16*9), font=small_font)
+                render_text('opponent\'s token in the middle track, it gets sent', pos=(0, w/16*10), font=small_font)
+                render_text('back home. The flower spaces let you take', pos=(0, w/16*11), font=small_font)
+                render_text('another turn. Tokens in the middle flower space', pos=(0, w/16*12), font=small_font)
+                render_text('are safe and cannot be landed on. Player 1 uses', pos=(0, w/16*13), font=small_font)
+                render_text('the left joystick and player 2 uses the right.', pos=(0, w/16*14), font=small_font)
                 render_text('Press the circle button to exit this menu.', pos=(0, w/16*15), font=small_font)
                 pg.display.update()
             sleep(0.2)
